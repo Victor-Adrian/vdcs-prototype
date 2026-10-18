@@ -44,12 +44,16 @@ public class OntopMediatorService {
     private static final String SRC_MONGO = "student-activities";
     private static final String SRC_PUBS  = "research-publications";
 
+    private static final String SRC_LOANS = "library-loans";
+
     /** Artefact IDs (must match artefacts.yml in the metadata service). */
     private static final String ART_ONTOLOGY      = "ontology";
     private static final String ART_MAPPING_PG    = "mapping-pg";
     private static final String ART_MAPPING_MYSQL = "mapping-mysql";
     private static final String ART_MAPPING_MONGO = "mapping-mongo";
     private static final String ART_MAPPING_PUBS  = "mapping-publications";
+
+    private static final String ART_MAPPING_LOANS = "mapping-loans";
 
     private final SourceCapabilityCatalogue catalogue;
     private final MetadataServiceClient     metadata;
@@ -60,6 +64,8 @@ public class OntopMediatorService {
     private OntopRepository mysqlRepo;
     private OntopRepository mongoRepo;
     private Repository      pubsRepo;
+
+    private OntopRepository loansRepo;
 
     // Federation plumbing
     private PredicateSourceRegistry registry;
@@ -121,8 +127,14 @@ public class OntopMediatorService {
         }
         log.info("Publications repository ready (direct SPARQL endpoint = {}).", pubsEndpoint);
 
-        // federation engine (with the graph source's query-time
-        // CONSTRUCT mapping registered)
+        // Library Loans uses an embedded, read-only H2 source.
+        File loansMappingFile = metadata.fetchArtefactToTempFile(ART_MAPPING_LOANS, "vdcs-mapping-loans-", ".obda");
+        Map<String, Object> loansConn = readConnection(SRC_LOANS);
+        loansRepo = buildRepository("library-loans (H2)", ontologyFile, loansMappingFile, loansConn);
+        loansRepo.init();
+        log.info("Ontop/Library-Loans repository ready ({}).", loansConn.get("jdbcUrl"));
+
+        // Start federation with the graph source's query-time CONSTRUCT mapping.
         this.registry   = new PredicateSourceRegistry(catalogue);
         this.federation = new FederatedQueryEngine(reposBySourceId(), registry,
                 Map.of(SRC_PUBS, pubsMapping));
@@ -135,6 +147,8 @@ public class OntopMediatorService {
         if (mysqlRepo != null) mysqlRepo.shutDown();
         if (mongoRepo != null) mongoRepo.shutDown();
         if (pubsRepo  != null) pubsRepo.shutDown();
+
+        if (loansRepo != null) loansRepo.shutDown();
     }
 
     // Public API
@@ -162,6 +176,7 @@ public class OntopMediatorService {
                     case SRC_PG    -> executeOn(pgRepo, sparql);
                     case SRC_MYSQL -> executeOn(mysqlRepo, sparql);
                     case SRC_MONGO -> executeOn(mongoRepo, sparql);
+                    case SRC_LOANS -> executeOn(loansRepo, sparql);
                     default -> throw new IllegalStateException(
                             "Unknown source id from registry: " + src);
                 };
@@ -186,6 +201,8 @@ public class OntopMediatorService {
         m.put(SRC_MYSQL, mysqlRepo);
         m.put(SRC_MONGO, mongoRepo);
         m.put(SRC_PUBS,  pubsRepo);
+
+        m.put(SRC_LOANS, loansRepo);
         return m;
     }
 

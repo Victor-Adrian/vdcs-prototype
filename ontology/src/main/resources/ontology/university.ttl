@@ -370,3 +370,21 @@ the native vocabulary."""@en .
 :Assessment      owl:hasKey ( :assessmentId ) .
 :Grade           owl:hasKey ( :gradeId ) .
 :StudentActivity owl:hasKey ( :activityStudentId ) .
+
+#  Library Loans
+
+:Loan a owl:Class .
+
+:loanId a owl:DatatypeProperty ;
+    rdfs:label "loan ID"@en ; rdfs:domain :Loan ; rdfs:range xsd:integer .
+:loanTitle a owl:DatatypeProperty ;
+    rdfs:label "loan title"@en ; rdfs:domain :Loan ; rdfs:range xsd:string .
+:borrowedOn a owl:DatatypeProperty ;
+    rdfs:label "borrowed on"@en ; rdfs:domain :Loan ; rdfs:range xsd:string .
+:returnedOn a owl:DatatypeProperty ;
+    rdfs:label "returned on"@en ; rdfs:domain :Loan ; rdfs:range xsd:string .
+
+:hasLoan a owl:ObjectProperty ;
+    rdfs:label "has loan"@en ; rdfs:domain :Student ; rdfs:range :Loan .
+
+:Loan owl:hasKey ( :loanId ) .

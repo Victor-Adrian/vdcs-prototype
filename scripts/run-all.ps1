@@ -129,7 +129,7 @@ $ok  = (Start-Service "iam"      "iam-service\target\vdcs-iam-service-1.0-SNAPSH
 $ok  = (Start-Service "metadata" "metadata-service\target\vdcs-metadata-service-1.0-SNAPSHOT.jar"                 8082 "http://localhost:8082/metadata") -and $ok
 if (-not $ok) { Write-Host "Tier 1 incomplete - aborting" -ForegroundColor Red; exit 1 }
 
-Write-Host "`n[2] Tier 2 - source access + canonical adapter" -ForegroundColor Cyan
+Write-Host "`n[2] Tier 2 - source access + canonical adapter + loans" -ForegroundColor Cyan
 $ok  = Start-Service "pg-sac"    "$SA\source-access-postgres-service\target\vdcs-source-access-postgres-service-1.0-SNAPSHOT.jar" 8083 "http://localhost:8083/sac/health"
 $ok  = (Start-Service "mysql-sac" "$SA\source-access-mysql-service\target\vdcs-source-access-mysql-service-1.0-SNAPSHOT.jar"      8084 "http://localhost:8084/sac/health") -and $ok
 $ok  = (Start-Service "mongo-csa" "$MONGO\canonical-adapter-service\target\vdcs-source-access-mongo-canonical-adapter-service-1.0-SNAPSHOT.jar" 8085 "http://localhost:8085/csa/health") -and $ok
@@ -137,6 +137,8 @@ $ok  = (Start-Service "mongo-sac" "$MONGO\service\target\vdcs-source-access-mong
 # Research publications (RDF/Fuseki): no adapter -- the source is
 # natively RDF, so the SAC only hands the mediator the SPARQL endpoint.
 $ok  = (Start-Service "pubs-sac"  "$SA\source-access-publications-service\target\vdcs-source-access-publications-service-1.0-SNAPSHOT.jar"                 8091 "http://localhost:8091/sac/health") -and $ok
+# Start Library Loans before the mediator requests its connection details.
+$ok  = (Start-Service "loans-sac" "$SA\source-access-loans-service\target\vdcs-source-access-loans-service-1.0-SNAPSHOT.jar"      8090 "http://localhost:8090/sac/health") -and $ok
 if (-not $ok) { Write-Host "Tier 2 incomplete - aborting" -ForegroundColor Red; exit 1 }
 
 Write-Host "`n[3] Tier 3 - mediator + write orchestrator" -ForegroundColor Cyan

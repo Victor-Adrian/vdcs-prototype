@@ -97,3 +97,21 @@ artefacts:
     modified:     "2026-07-02"
     conformsTo:   "ontology@1.0.0"
     appliesTo:    research-publications
+
+  - id:           mapping-loans
+    persistentId: https://thesis.utwente.nl/vdcs/metadata/artefact/mapping-loans
+    title:        "Library Loans OBDA mapping"
+    description:  >
+      Ontop mapping linking the Library-Loans embedded-H2 `loans` table to
+      the global ontology. Added for the add-a-source modularity demo.
+    kind:         mapping
+    format:       application/obda
+    version:      "1.0.0"
+    classpath:    mappings/university-loans.obda
+    license:      CC0-1.0
+    licenseUrl:   https://creativecommons.org/publicdomain/zero/1.0/
+    owner:        "Thesis author (synthetic)"
+    created:      "2026-06-03"
+    modified:     "2026-06-03"
+    conformsTo:   "ontology@1.0.0"
+    appliesTo:    library-loans

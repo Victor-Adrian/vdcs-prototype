@@ -178,3 +178,32 @@ sources:
       - publicationVenue
       - publicationAuthorStudentId
       - hasPublication
+
+  # Library Loans (read-only, embedded H2)
+  - id:           library-loans
+    persistentId: https://thesis.utwente.nl/vdcs/metadata/source/library-loans
+    title:        "Library Loans"
+    description:  >
+      Book loans per student. Embedded-H2 demo source added to validate
+      the modularity scenario: a new autonomous source joining the
+      federation with no change to the existing sources.
+    type:         relational
+    engine:       h2
+    sacUrl:       http://localhost:8090
+    capabilities:
+      - read
+    entities:
+      - Loan
+    conformsTo:   "1.0.0"
+    license:      CC0-1.0
+    licenseUrl:   https://creativecommons.org/publicdomain/zero/1.0/
+    owner:        "University Library (synthetic)"
+    created:      "2026-06-03"
+    modified:     "2026-06-03"
+    produces:
+      - Loan
+      - loanId
+      - loanTitle
+      - borrowedOn
+      - returnedOn
+      - hasLoan

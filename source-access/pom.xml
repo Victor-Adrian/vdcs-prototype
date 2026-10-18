@@ -24,5 +24,7 @@
     <module>source-access-mysql-service</module>
     <module>source-access-mongo</module>
     <module>source-access-publications-service</module>
+
+    <module>source-access-loans-service</module>
   </modules>
 </project>

@@ -18,7 +18,7 @@ param(
 )
 
 $root = Split-Path -Parent $PSScriptRoot
-$ports = 8080,8081,8082,8083,8084,8085,8086,8087,8088,8089,8091,9092
+$ports = 8080,8081,8082,8083,8084,8085,8086,8087,8088,8089,8090,8091,9092,9093
 
 Write-Host "Stopping VDCS services..." -ForegroundColor Cyan
 foreach ($p in $ports) {
