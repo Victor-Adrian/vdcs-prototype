@@ -39,6 +39,7 @@ sources:
       - fullName
       - dateOfBirth
       - enrolledInProgramme
+      - nationality
       - programmeId
       - programmeName
       - programmeDepartment

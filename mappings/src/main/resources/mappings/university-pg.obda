@@ -7,8 +7,8 @@ rdf:    http://www.w3.org/1999/02/22-rdf-syntax-ns#
 [MappingDeclaration] @collection [[
 
 mappingId    map-students
-target       r:student/{student_id} a :Student ; :studentId {student_id}^^xsd:integer ; :fullName {full_name}^^xsd:string ; :dateOfBirth {date_of_birth}^^xsd:date ; :enrolledInProgramme r:programme/{programme_id} .
-source       SELECT id AS student_id, full_name, date_of_birth, programme_id FROM students
+target       r:student/{student_id} a :Student ; :studentId {student_id}^^xsd:integer ; :fullName {full_name}^^xsd:string ; :dateOfBirth {date_of_birth}^^xsd:date ; :nationality {nationality}^^xsd:string ; :enrolledInProgramme r:programme/{programme_id} .
+source       SELECT id AS student_id, full_name, date_of_birth, programme_id, nationality FROM students
 
 mappingId    map-programmes
 target       r:programme/{programme_id} a :Programme ; :programmeId {programme_id}^^xsd:integer ; :programmeName {name}^^xsd:string ; :programmeDepartment {department}^^xsd:string .

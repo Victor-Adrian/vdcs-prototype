@@ -187,6 +187,11 @@ the native vocabulary."""@en .
     rdfs:domain :Student ;
     rdfs:range  xsd:date .
 
+:nationality a owl:DatatypeProperty ;
+    rdfs:label  "nationality"@en ;
+    rdfs:domain :Student ;
+    rdfs:range  xsd:string .
+
 #  Data Properties - :Programme
 
 :programmeId a owl:DatatypeProperty ;
