@@ -1,0 +1,180 @@
+# Source registrations loaded by the metadata service at startup.
+# sacUrl identifies the service that owns each source. csaUrl identifies
+# an adapter when the source needs canonical projection. Other components
+# read this catalogue through the service API. Credentials are managed
+# separately.
+
+sources:
+
+  - id:           student-registry
+    persistentId: https://thesis.utwente.nl/vdcs/metadata/source/student-registry
+    title:        "Student Registry"
+    description:  >
+      Authoritative source for student demographic data, study programmes,
+      and per-course enrollment records. Maintained by the Registrar's
+      Office of the (synthetic) university used in this PoC.
+    type:         relational
+    engine:       postgresql
+    sacUrl:       http://localhost:8083
+    capabilities:
+      - read
+      - write
+    entities:
+      - Student
+      - Programme
+      - Enrollment
+      # FinalGrade writes are replicated to both grade-owning sources.
+      - FinalGrade
+    conformsTo:   "1.0.0"
+    license:      CC-BY-4.0
+    licenseUrl:   https://creativecommons.org/licenses/by/4.0/
+    owner:        "University Registrar's Office (synthetic)"
+    created:      "2026-01-15"
+    modified:     "2026-05-20"
+    produces:
+      - Student
+      - Programme
+      - Enrollment
+      - studentId
+      - fullName
+      - dateOfBirth
+      - enrolledInProgramme
+      - programmeId
+      - programmeName
+      - programmeDepartment
+      - enrollmentId
+      - academicYear
+      - hasEnrollment
+      - enrolledInCourse
+      # Reads use the registrar's final grade copy.
+      - FinalGrade
+      - finalStudentId
+      - finalCourseId
+      - finalScore
+      - hasFinalGrade
+      - finalGradeFor
+
+  - id:           academic-records
+    persistentId: https://thesis.utwente.nl/vdcs/metadata/source/academic-records
+    title:        "Academic Records"
+    description:  >
+      Authoritative source for course catalogue, assessment definitions,
+      and student grades. Maintained by the (synthetic) university's
+      Academic Affairs Office.
+    type:         relational
+    engine:       mysql
+    sacUrl:       http://localhost:8084
+    capabilities:
+      - read
+      - write
+    entities:
+      - Course
+      - Assessment
+      - Grade
+      # Shared with student-registry - see the note there. A FinalGrade
+      # write is broadcast to both sources; this side keeps the "Canvas"
+      # copy (final_grades) in sync with the registrar's copy.
+      - FinalGrade
+    conformsTo:   "1.0.0"
+    license:      CC-BY-NC-4.0
+    licenseUrl:   https://creativecommons.org/licenses/by-nc/4.0/
+    owner:        "Academic Affairs Office (synthetic)"
+    created:      "2026-01-15"
+    modified:     "2026-05-26"
+    produces:
+      - Course
+      - Assessment
+      - Grade
+      - courseId
+      - courseTitle
+      - credits
+      - courseDepartment
+      - assessmentId
+      - assessmentType
+      - weight
+      - hasAssessment
+      - gradeId
+      - score
+      - hasGrade
+      - assessedBy
+
+  - id:           student-activities
+    persistentId: https://thesis.utwente.nl/vdcs/metadata/source/student-activities
+    title:        "Student Activities"
+    description:  >
+      Authoritative source for student extracurricular records — club
+      memberships and academic projects — stored as MongoDB documents.
+      Maintained by the (synthetic) university's Student Affairs Office.
+      A Canonical Source Adapter (csaUrl) projects the documents into a
+      relational H2 view. The mediator and orchestrator address only the
+      SAC (sacUrl): it forwards the connection handshake and writes to the
+      adapter, so neither ever talks to the adapter directly. csaUrl is
+      kept as metadata (and a fallback).
+    type:         document
+    engine:       mongodb
+    sacUrl:       http://localhost:8086
+    csaUrl:       http://localhost:8085
+    capabilities:
+      - read
+      - write
+    entities:
+      - StudentActivity
+      - ClubMembership
+      - AcademicProject
+    adapter:      mongo-canonical-adapter
+    conformsTo:   "1.0.0"
+    license:      CC0-1.0
+    licenseUrl:   https://creativecommons.org/publicdomain/zero/1.0/
+    owner:        "Student Affairs Office (synthetic)"
+    created:      "2026-01-15"
+    modified:     "2026-05-15"
+    produces:
+      - StudentActivity
+      - ClubMembership
+      - AcademicProject
+      - activityStudentId
+      - hasActivity
+      - clubName
+      - clubRole
+      - joinedDate
+      - hasClubMembership
+      - projectTitle
+      - projectYear
+      - projectStatus
+      - hasProject
+
+  # Research publications are already RDF, so they need no canonical
+  # adapter. The source service proxies reads and translates canonical
+  # writes to SPARQL updates in the repository's native vocabulary.
+  - id:           research-publications
+    persistentId: https://thesis.utwente.nl/vdcs/metadata/source/research-publications
+    title:        "Research Publications"
+    description:  >
+      Student-co-authored research publications, held natively as RDF in
+      the university's research repository (Apache Jena Fuseki) under the
+      repository's own vocabulary (dcterms + a local namespace). The
+      mediator's reads are proxied through the SAC (/sac/sparql); writes
+      are translated by the SAC into SPARQL Update against the source's
+      native graph.
+    type:         graph
+    engine:       fuseki
+    sacUrl:       http://localhost:8091
+    capabilities:
+      - read
+      - write
+    entities:
+      - Publication
+    conformsTo:   "1.0.0"
+    license:      CC-BY-4.0
+    licenseUrl:   https://creativecommons.org/licenses/by/4.0/
+    owner:        "University Research Repository (synthetic)"
+    created:      "2026-07-02"
+    modified:     "2026-07-02"
+    produces:
+      - Publication
+      - publicationId
+      - publicationTitle
+      - publicationYear
+      - publicationVenue
+      - publicationAuthorStudentId
+      - hasPublication

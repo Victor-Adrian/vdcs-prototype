@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VDCS — Query Interface</title>
+  <style>
+    :root {
+      --accent:   #3b82f6;
+      --bg:       #f8fafc;
+      --surface:  #ffffff;
+      --border:   #e2e8f0;
+      --text:     #1e293b;
+      --muted:    #64748b;
+      --error:    #ef4444;
+      --success:  #22c55e;
+      --code-bg:  #0f172a;
+      --code-fg:  #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+    header h1 { font-size: 17px; font-weight: 600; }
+    header .sub { color: var(--muted); font-size: 13px; }
+
+    /* Token bar */
+    .token-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .token-bar input {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-family: monospace;
+      font-size: 13px;
+      width: 220px;
+      color: var(--text);
+    }
+    .token-bar code { font-size: 12px; }
+    .token-bar button {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      background: #fff;
+      color: var(--text);
+    }
+    .token-bar button:hover { background: var(--surface); }
+    .token-hint {
+      padding: 6px 32px;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .token-hint b { color: var(--text); }
+
+    /* Main layout */
+    main {
+      max-width: 1080px;
+      margin: 28px auto;
+      padding: 0 32px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 22px;
+    }
+    .tab {
+      padding: 9px 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      user-select: none;
+    }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Editor card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 14px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+    }
+    .card-header span { font-weight: 400; text-transform: none; letter-spacing: 0; }
+    textarea {
+      display: block;
+      width: 100%;
+      padding: 14px 16px;
+      font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border: none;
+      resize: vertical;
+      min-height: 170px;
+      outline: none;
+    }
+
+    /* Action row */
+    .actions { display: flex; gap: 10px; margin-bottom: 20px; }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-primary:hover { opacity: .88; }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 8px 18px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn-secondary:hover { background: var(--bg); }
+
+    /* Result card */
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 14px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+    }
+    .badge {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+    .badge-ok      { background: #dcfce7; color: #15803d; }
+    .badge-err     { background: #fee2e2; color: #b91c1c; }
+    .badge-pending { background: #fef9c3; color: #92400e; }
+
+    .result-empty {
+      padding: 30px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .result-raw {
+      padding: 14px 16px;
+      font-family: monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      background: var(--code-bg);
+      color: var(--code-fg);
+    }
+
+    /* SPARQL results table */
+    .sparql-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .sparql-table th {
+      padding: 8px 14px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .sparql-table td {
+      padding: 7px 14px;
+      border-bottom: 1px solid var(--border);
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .sparql-table tr:last-child td { border-bottom: none; }
+    .sparql-table tr:hover td { background: var(--bg); }
+
+    #row-count { font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 6px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>VDCS Query Interface</h1>
+  <span class="sub">Virtual Data-Centric System — University Instantiation</span>
+</header>
+
+<div class="token-bar">
+  <label for="token">Bearer token</label>
+  <input id="token" type="text" value="teacher-token" />
+  <button type="button" onclick="setToken('teacher-token')">Teacher</button>
+  <button type="button" onclick="setToken('alice-token')">Alice&nbsp;(student&nbsp;1)</button>
+  <span>·&nbsp; <code>http://localhost:8080</code></span>
+</div>
+<div class="token-hint">
+  The token decides what you may see (resolved by the IAM service).
+  <b>teacher-token</b>: full read + write.
+  <b>alice-token</b>: read-only; sees all students &amp; club memberships and
+  her <b>own</b> grades, but not courses, assessments, or other students' grades.
+</div>
+
+<main>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('read')">SPARQL Query &nbsp;(read)</div>
+    <div class="tab"        onclick="switchTab('write')">Canonical Update &nbsp;(write)</div>
+  </div>
+
+  <!-- Read panel -->
+  <div id="panel-read" class="panel active">
+
+    <div class="card">
+      <div class="card-header">
+        SPARQL query
+        <span>POST /api/query · Content-Type: application/sparql-query</span>
+      </div>
+      <textarea id="sparql-input" spellcheck="false">PREFIX : <https://thesis.utwente.nl/vdcs/ontology/university#>
+
+SELECT ?name ?programme
+WHERE {
+  ?student a :Student ;
+           :fullName ?name ;
+           :enrolledInProgramme ?prog .
+  ?prog :programmeName ?programme .
+}
+ORDER BY ?name
+LIMIT 10</textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary"    onclick="runQuery()">&#9654;&nbsp; Run query</button>
+      <button class="btn-secondary"  onclick="clearRead()">Clear</button>
+    </div>
+
+    <div class="card">
+      <div class="result-header">
+        Results<span id="row-count"></span>
+        <span id="read-status"></span>
+      </div>
+      <div id="read-result">
+        <div class="result-empty">Run a query to see results here.</div>
+      </div>
+    </div>
+
+  </div><!-- /panel-read -->
+
+  <!-- Write panel -->
+  <div id="panel-write" class="panel">
+
+    <div class="card">
+      <div class="card-header" id="write-card-header">
+        <span>Update</span>
+        <span style="font-weight:400;text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:14px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input type="radio" name="write-mode" value="sparql" checked onchange="switchWriteMode('sparql')" />
+            <span>SPARQL Update</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input type="radio" name="write-mode" value="json" onchange="switchWriteMode('json')" />
+            <span>JSON canonical</span>
+          </label>
+          <span id="write-content-type" style="opacity:.7">· application/sparql-update</span>
+        </span>
+      </div>
+      <textarea id="update-input" spellcheck="false">PREFIX :     &lt;https://thesis.utwente.nl/vdcs/ontology/university#&gt;
+PREFIX stu:  &lt;https://thesis.utwente.nl/vdcs/resource/student/&gt;
+PREFIX prog: &lt;https://thesis.utwente.nl/vdcs/resource/programme/&gt;
+PREFIX xsd:  &lt;http://www.w3.org/2001/XMLSchema#&gt;
+
+INSERT DATA {
+  stu:21 a :Student ;
+         :studentId           21 ;
+         :fullName            "Ada Lovelace" ;
+         :dateOfBirth         "1815-12-10"^^xsd:date ;
+         :enrolledInProgramme prog:1 .
+}</textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary"    onclick="runUpdate()">&#9654;&nbsp; Send update</button>
+      <button class="btn-secondary"  onclick="clearWrite()">Clear</button>
+    </div>
+
+    <div class="card">
+      <div class="result-header">
+        Response
+        <span id="write-status"></span>
+      </div>
+      <div id="write-result">
+        <div class="result-empty">Send an update to see the response here.</div>
+      </div>
+    </div>
+
+  </div><!-- /panel-write -->
+
+</main>
+
+<script>
+  // Tab switching
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', ['read', 'write'][i] === name);
+    });
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+  }
+
+  function bearerToken() {
+    return document.getElementById('token').value.trim();
+  }
+
+  function setToken(t) {
+    document.getElementById('token').value = t;
+  }
+
+  // SPARQL read
+  async function runQuery() {
+    const sparql = document.getElementById('sparql-input').value.trim();
+    if (!sparql) return;
+
+    setStatus('read', 'pending', 'Sending…');
+    document.getElementById('row-count').textContent = '';
+    document.getElementById('read-result').innerHTML =
+      '<div class="result-empty">Loading…</div>';
+
+    try {
+      const res = await fetch('/api/query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/sparql-query',
+          'Accept': 'application/sparql-results+json',
+          'Authorization': 'Bearer ' + bearerToken()
+        },
+        body: sparql
+      });
+
+      const text = await res.text();
+
+      if (!res.ok) {
+        setStatus('read', 'err', res.status + ' ' + res.statusText);
+        document.getElementById('read-result').innerHTML =
+          '<div class="result-raw">' + esc(text) + '</div>';
+        return;
+      }
+
+      setStatus('read', 'ok', '200 OK');
+
+      try {
+        renderSparqlTable(JSON.parse(text));
+      } catch {
+        document.getElementById('read-result').innerHTML =
+          '<div class="result-raw">' + esc(text) + '</div>';
+      }
+
+    } catch (err) {
+      setStatus('read', 'err', 'Network error');
+      document.getElementById('read-result').innerHTML =
+        '<div class="result-raw">' + esc(String(err)) + '</div>';
+    }
+  }
+
+  function renderSparqlTable(json) {
+    const vars     = json?.head?.vars     ?? [];
+    const bindings = json?.results?.bindings ?? [];
+
+    if (vars.length === 0) {
+      document.getElementById('read-result').innerHTML =
+        '<div class="result-empty">No variables returned.</div>';
+      return;
+    }
+
+    document.getElementById('row-count').textContent =
+      '— ' + bindings.length + ' row' + (bindings.length !== 1 ? 's' : '');
+
+    let h = '<table class="sparql-table"><thead><tr>';
+    vars.forEach(v => { h += '<th>' + esc(v) + '</th>'; });
+    h += '</tr></thead><tbody>';
+
+    if (bindings.length === 0) {
+      h += '<tr><td colspan="' + vars.length +
+           '" style="text-align:center;color:var(--muted);padding:20px">No results.</td></tr>';
+    } else {
+      bindings.forEach(row => {
+        h += '<tr>';
+        vars.forEach(v => {
+          h += '<td>' + (row[v] ? esc(row[v].value) : '<span style="color:var(--muted)">—</span>') + '</td>';
+        });
+        h += '</tr>';
+      });
+    }
+
+    h += '</tbody></table>';
+    document.getElementById('read-result').innerHTML = h;
+  }
+
+  function clearRead() {
+    document.getElementById('sparql-input').value = '';
+    document.getElementById('read-result').innerHTML =
+      '<div class="result-empty">Run a query to see results here.</div>';
+    document.getElementById('read-status').innerHTML = '';
+    document.getElementById('row-count').textContent = '';
+  }
+
+  // Write mode (SPARQL Update vs JSON canonical)
+  const SPARQL_EXAMPLE =
+`PREFIX :     <https://thesis.utwente.nl/vdcs/ontology/university#>
+PREFIX stu:  <https://thesis.utwente.nl/vdcs/resource/student/>
+PREFIX prog: <https://thesis.utwente.nl/vdcs/resource/programme/>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+INSERT DATA {
+  stu:21 a :Student ;
+         :studentId           21 ;
+         :fullName            "Ada Lovelace" ;
+         :dateOfBirth         "1815-12-10"^^xsd:date ;
+         :enrolledInProgramme prog:1 .
+}`;
+
+  const JSON_EXAMPLE =
+`{
+  "operation": "INSERT",
+  "entityType": "Student",
+  "payload": {
+    "studentId":   21,
+    "fullName":    "Ada Lovelace",
+    "dateOfBirth": "1815-12-10",
+    "programmeId": 1
+  },
+  "filter": {}
+}`;
+
+  let writeMode = 'sparql';
+
+  function switchWriteMode(mode) {
+    writeMode = mode;
+    const ta = document.getElementById('update-input');
+    const current = ta.value.trim();
+    // Replace the textarea contents only if the user hasn't edited the example
+    if (current === '' || current === SPARQL_EXAMPLE || current === JSON_EXAMPLE) {
+      ta.value = (mode === 'sparql') ? SPARQL_EXAMPLE : JSON_EXAMPLE;
+    }
+    document.getElementById('write-content-type').textContent =
+      (mode === 'sparql') ? '· application/sparql-update' : '· application/json';
+  }
+
+  // Canonical write
+  /** Returns the selected write mode. */
+  function currentWriteMode() {
+    const r = document.querySelector('input[name="write-mode"]:checked');
+    return r ? r.value : writeMode;
+  }
+
+  async function runUpdate() {
+    const body = document.getElementById('update-input').value.trim();
+    if (!body) return;
+
+    const mode = currentWriteMode();
+    const contentType = (mode === 'sparql')
+        ? 'application/sparql-update'
+        : 'application/json';
+
+    // Validate JSON client-side; SPARQL is validated server-side
+    if (mode === 'json') {
+      try { JSON.parse(body); }
+      catch {
+        setStatus('write', 'err', 'Invalid JSON');
+        document.getElementById('write-result').innerHTML =
+          '<div class="result-raw">Request body is not valid JSON.</div>';
+        return;
+      }
+    }
+
+    setStatus('write', 'pending', 'Sending…');
+    document.getElementById('write-result').innerHTML =
+      '<div class="result-empty">Loading…</div>';
+
+    try {
+      const res = await fetch('/api/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type':  contentType,
+          'Authorization': 'Bearer ' + bearerToken()
+        },
+        body: body
+      });
+
+      const text = await res.text();
+
+      if (res.status === 200 || res.status === 204) {
+        setStatus('write', 'ok', res.status + ' OK');
+        document.getElementById('write-result').innerHTML =
+          '<div class="result-empty" style="color:var(--success)">&#10003;&nbsp; Update accepted.</div>';
+      } else {
+        setStatus('write', 'err', res.status + ' ' + res.statusText);
+        document.getElementById('write-result').innerHTML =
+          '<div class="result-raw">' + esc(text) + '</div>';
+      }
+
+    } catch (err) {
+      setStatus('write', 'err', 'Network error');
+      document.getElementById('write-result').innerHTML =
+        '<div class="result-raw">' + esc(String(err)) + '</div>';
+    }
+  }
+
+  function clearWrite() {
+    document.getElementById('update-input').value = '';
+    document.getElementById('write-result').innerHTML =
+      '<div class="result-empty">Send an update to see the response here.</div>';
+    document.getElementById('write-status').innerHTML = '';
+  }
+
+  // Helpers
+  function setStatus(panel, level, text) {
+    const cls = level === 'ok'      ? 'badge-ok'
+              : level === 'err'     ? 'badge-err'
+              :                       'badge-pending';
+    document.getElementById(panel + '-status').innerHTML =
+      '<span class="badge ' + cls + '">' + esc(text) + '</span>';
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>

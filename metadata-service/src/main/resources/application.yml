@@ -1,0 +1,18 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: vdcs-metadata-service
+  autoconfigure:
+    exclude:
+      # Don't pull in MongoDB autoconfig - the metadata service does not
+      # talk to any data source directly.
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+
+vdcs:
+  metadata:
+    provenance:
+      # Maximum number of provenance events held in the in-memory ring
+      # buffer. Older events are evicted when the buffer is full.
+      capacity: 10000

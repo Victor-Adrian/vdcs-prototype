@@ -1,0 +1,15 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: vdcs-secret-store-service
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+
+vdcs:
+  secret:
+    audit:
+      # Max credential-access events held in the in-memory ring buffer.
+      capacity: 5000

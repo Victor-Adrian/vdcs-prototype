@@ -1,0 +1,29 @@
+# Maps the publications repository to the global ontology.
+# The mediator runs this CONSTRUCT against the source at query time to
+# translate its native vocabulary and resource IRIs.
+
+PREFIX pub: <https://research.utwente.nl/vocab#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX :    <https://thesis.utwente.nl/vdcs/ontology/university#>
+
+CONSTRUCT {
+  ?gp a :Publication ;
+      :publicationId              ?id ;
+      :publicationTitle           ?title ;
+      :publicationYear            ?year ;
+      :publicationVenue           ?venue ;
+      :publicationAuthorStudentId ?sid .
+  ?gs :hasPublication ?gp .
+}
+WHERE {
+  ?np a pub:Publication ;
+      dct:title ?title ;
+      pub:year  ?year ;
+      pub:venue ?venue ;
+      pub:authorStudentNumber ?sid .
+  BIND(STRAFTER(STR(?np), "https://research.utwente.nl/publication/") AS ?idStr)
+  BIND(xsd:integer(?idStr) AS ?id)
+  BIND(IRI(CONCAT("https://thesis.utwente.nl/vdcs/resource/publication/", ?idStr)) AS ?gp)
+  BIND(IRI(CONCAT("https://thesis.utwente.nl/vdcs/resource/student/", STR(?sid))) AS ?gs)
+}

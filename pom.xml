@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>nl.utwente.thesis</groupId>
+  <artifactId>vdcs-instantiation</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>VDCS Instantiation — Root</name>
+  <description>Proof-of-concept virtual data-centric system.</description>
+
+  <modules>
+    <module>ontology</module>
+    <module>mappings</module>
+    <module>metadata-client</module>
+    <module>metadata-service</module>
+    <module>secret-store-client</module>
+    <module>secret-store-service</module>
+    <module>iam-service</module>
+    <module>source-access</module>
+    <module>semantic-mediator</module>
+    <module>write-orchestrator</module>
+    <module>write-orchestrator-service</module>
+    <module>access-interface</module>
+  </modules>
+
+  <properties>
+    <java.version>21</java.version>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- Managed versions - update here only -->
+    <spring-boot.version>3.5.16</spring-boot.version>
+    <postgresql.version>42.7.13</postgresql.version>
+    <mysql.version>26.7.0</mysql.version>
+    <mongodb.version>5.10.0</mongodb.version>
+    <jackson.version>2.21.5</jackson.version>
+    <snakeyaml.version>2.5</snakeyaml.version>
+    <guava.version>33.0.0-jre</guava.version>
+    <jsonld-java.version>0.13.6</jsonld-java.version>
+    <error-prone-annotations.version>2.49.0</error-prone-annotations.version>
+    <commons-io.version>2.15.1</commons-io.version>
+    <commons-lang3.version>3.18.0</commons-lang3.version>
+    <log4j2.version>2.25.5</log4j2.version>
+    <!-- Ontop version -->
+    <ontop.version>5.5.0</ontop.version>
+    <!--
+      RDF4J version override. owlapi-rio 5.1.20 pulls in old RDF4J 3.7.4
+      RIO parsers that break against the 4.2.4 RIO API used by Ontop.
+      Pin every RDF4J jar to 4.2.4 via the BOM below.
+    -->
+    <rdf4j.version>5.1.4</rdf4j.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-bom</artifactId>
+        <version>${log4j2.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-bom</artifactId>
+        <version>${mongodb.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Spring Boot BOM - provides managed versions for Spring, Jackson, H2, etc. -->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <!-- RDF4J BOM - pins every rdf4j-* artifact to a single coherent version
+           (must precede ontop-* declarations to win Maven's nearest-wins) -->
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-bom</artifactId>
+        <version>${rdf4j.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>${snakeyaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.jsonld-java</groupId>
+        <artifactId>jsonld-java</artifactId>
+        <version>${jsonld-java.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.errorprone</groupId>
+        <artifactId>error_prone_annotations</artifactId>
+        <version>${error-prone-annotations.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons-io.version}</version>
+      </dependency>
+
+      <!-- Internal modules -->
+      <dependency>
+        <groupId>nl.utwente.thesis</groupId>
+        <artifactId>vdcs-ontology</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>nl.utwente.thesis</groupId>
+        <artifactId>vdcs-mappings</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>nl.utwente.thesis</groupId>
+        <artifactId>vdcs-metadata-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>nl.utwente.thesis</groupId>
+        <artifactId>vdcs-metadata-service</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>nl.utwente.thesis</groupId>
+        <artifactId>vdcs-secret-store-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>nl.utwente.thesis</groupId>
+        <artifactId>vdcs-source-access-postgres</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>nl.utwente.thesis</groupId>
+        <artifactId>vdcs-source-access-mysql</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>nl.utwente.thesis</groupId>
+        <artifactId>vdcs-source-access-mongo-source</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>nl.utwente.thesis</groupId>
+        <artifactId>vdcs-source-access-mongo-adapter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>nl.utwente.thesis</groupId>
+        <artifactId>vdcs-write-orchestrator</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>nl.utwente.thesis</groupId>
+        <artifactId>vdcs-write-orchestrator-service</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>nl.utwente.thesis</groupId>
+        <artifactId>vdcs-semantic-mediator</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- External data-source drivers -->
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgresql.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.mysql</groupId>
+        <artifactId>mysql-connector-j</artifactId>
+        <version>${mysql.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.5.3</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.6.2</version>
+        <executions>
+          <execution>
+            <id>dependency-consistency</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireUpperBoundDeps/>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.13.0</version>
+          <configuration>
+            <release>21</release>
+            <!-- Preserve constructor parameter names so Jackson can
+                 deserialise records and constructor-injected classes
+                 (e.g. CanonicalUpdate) without explicit annotations. -->
+            <parameters>true</parameters>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring-boot.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>

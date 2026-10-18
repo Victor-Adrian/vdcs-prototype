@@ -1,0 +1,45 @@
+# Bearer-token policy used by the access interface.
+# ALLOW reads all rows, DENY blocks access, and SELF limits rows using
+# selfScopes. defaultPermission covers entities not listed explicitly.
+
+principals:
+
+  # Teacher: full read + write across everything
+  - token:    teacher-token
+    identity: prof.smith
+    roles:    [teacher]
+    mayWrite: true
+    defaultPermission: ALLOW
+    permissions: {}
+
+  # Backwards-compatible full-access token
+  # Keeps the pre-IAM tests and the UI's default 'dev-token' working.
+  - token:    dev-token
+    identity: dev.admin
+    roles:    [admin]
+    mayWrite: true
+    defaultPermission: ALLOW
+    permissions: {}
+
+  # Alice Chen: read-only access with grades limited to student 1.
+  - token:    alice-token
+    identity: alice.chen
+    roles:    [student]
+    mayWrite: false
+    defaultPermission: DENY
+    attributes:
+      studentId: 1
+    permissions:
+      Student:         ALLOW
+      Programme:       ALLOW
+      Enrollment:      ALLOW
+      StudentActivity: ALLOW
+      ClubMembership:  ALLOW
+      AcademicProject: ALLOW
+      Grade:           SELF
+      # Course and Assessment are absent, so defaultPermission (DENY) applies
+    selfScopes:
+      Grade:
+        ownerPredicate:   hasGrade
+        ownerType:        student
+        ownerIdAttribute: studentId

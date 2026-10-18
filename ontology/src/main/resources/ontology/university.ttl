@@ -1,0 +1,372 @@
+@prefix :     <https://thesis.utwente.nl/vdcs/ontology/university#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+#  Ontology header
+
+<https://thesis.utwente.nl/vdcs/ontology/university>
+    a owl:Ontology ;
+    owl:versionIRI <https://thesis.utwente.nl/vdcs/ontology/university/1.0> ;
+    rdfs:label   "University VDCS Ontology"@en ;
+    rdfs:comment """Global OWL 2 QL ontology for the VDCS instantiation.
+Covers four heterogeneous autonomous data sources:
+  PostgreSQL  (student-registry)       : Student, Programme, Enrollment
+  MySQL       (academic-records)       : Course, Assessment, Grade
+  MongoDB     (student-activities)     : StudentActivity, ClubMembership, AcademicProject
+  RDF/Fuseki  (research-publications)  : Publication
+FinalGrade is deliberately owned by BOTH student-registry and
+academic-records (a replicated fact)."""@en .
+
+#  Classes - student-registry (PostgreSQL)
+
+:Student a owl:Class ;
+    rdfs:label   "Student"@en ;
+    rdfs:comment "A registered student at the university."@en .
+
+:Programme a owl:Class ;
+    rdfs:label   "Programme"@en ;
+    rdfs:comment "A degree programme offered by the university."@en .
+
+:Enrollment a owl:Class ;
+    rdfs:label   "Enrollment"@en ;
+    rdfs:comment "A student's enrollment in a specific course."@en .
+
+#  Classes - academic-records (MySQL)
+
+:Course a owl:Class ;
+    rdfs:label   "Course"@en ;
+    rdfs:comment "A course offered at the university."@en .
+
+:Assessment a owl:Class ;
+    rdfs:label   "Assessment"@en ;
+    rdfs:comment "An assessment component of a course (e.g. exam, coursework)."@en .
+
+:Grade a owl:Class ;
+    rdfs:label   "Grade"@en ;
+    rdfs:comment "A grade awarded to a student for one assessment."@en .
+
+:FinalGrade a owl:Class ;
+    rdfs:label   "Final Grade"@en ;
+    rdfs:comment """The official final grade of a student for a course.
+This fact is deliberately recorded in TWO autonomous sources: the grades
+system computes it from the per-assessment grades (MySQL final_grades,
+the 'Canvas' copy) and the registration system records the same value on
+the enrollment (PostgreSQL enrollments.final_grade, the 'Osiris' copy).
+Both copies map to the same IRI (final-grade/{studentId}-{courseId}), so
+the (student, course) pair is the cross-source identity crosswalk."""@en .
+
+#  Classes - research-publications (RDF / Apache Jena Fuseki)
+
+:Publication a owl:Class ;
+    rdfs:label   "Publication"@en ;
+    rdfs:comment """A research publication co-authored by students. Held
+natively as RDF in the university's research repository (Fuseki) under
+the repository's own vocabulary. Because that model is already a graph,
+the source needs no Canonical Source Adapter: the mediator federates it
+directly over SPARQL, and a CONSTRUCT mapping aligns its vocabulary with
+this ontology at query time. Writes go the other way, the SAC
+translating a canonical Publication write into a SPARQL Update against
+the native vocabulary."""@en .
+
+#  Classes - student-activities (MongoDB)
+
+:StudentActivity a owl:Class ;
+    rdfs:label   "Student Activity Record"@en ;
+    rdfs:comment "The extracurricular activity record for a student."@en .
+
+:ClubMembership a owl:Class ;
+    rdfs:label   "Club Membership"@en ;
+    rdfs:comment "A student's membership in a university club or society."@en .
+
+:AcademicProject a owl:Class ;
+    rdfs:label   "Academic Project"@en ;
+    rdfs:comment "A project undertaken by a student."@en .
+
+#  Disjointness - all nine entity classes are mutually disjoint
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( :Student    :Programme  :Enrollment
+                  :Course     :Assessment :Grade :FinalGrade
+                  :StudentActivity :ClubMembership :AcademicProject
+                  :Publication ) .
+
+#  Object Properties
+
+# Student to Programme  (many students per programme)
+:enrolledInProgramme a owl:ObjectProperty ;
+    rdfs:label  "enrolled in programme"@en ;
+    rdfs:domain :Student ;
+    rdfs:range  :Programme .
+
+# Student to Enrollment  (one student, many enrollments)
+:hasEnrollment a owl:ObjectProperty ;
+    rdfs:label  "has enrollment"@en ;
+    rdfs:domain :Student ;
+    rdfs:range  :Enrollment .
+
+# Enrollment to Course  (each enrollment targets one course)
+:enrolledInCourse a owl:ObjectProperty ;
+    rdfs:label  "enrolled in course"@en ;
+    rdfs:domain :Enrollment ;
+    rdfs:range  :Course .
+
+# Course to Assessment  (one course, many assessments)
+:hasAssessment a owl:ObjectProperty ;
+    rdfs:label  "has assessment"@en ;
+    rdfs:domain :Course ;
+    rdfs:range  :Assessment .
+
+# Assessment to Course  (inverse of hasAssessment)
+:partOfCourse a owl:ObjectProperty ;
+    rdfs:label    "part of course"@en ;
+    owl:inverseOf :hasAssessment .
+
+# Student to Grade  (one student, many grades)
+:hasGrade a owl:ObjectProperty ;
+    rdfs:label  "has grade"@en ;
+    rdfs:domain :Student ;
+    rdfs:range  :Grade .
+
+# Grade to Assessment  (each grade belongs to one assessment)
+:assessedBy a owl:ObjectProperty ;
+    rdfs:label  "assessed by"@en ;
+    rdfs:domain :Grade ;
+    rdfs:range  :Assessment .
+
+# Student to FinalGrade  (one final grade per completed course)
+:hasFinalGrade a owl:ObjectProperty ;
+    rdfs:label  "has final grade"@en ;
+    rdfs:domain :Student ;
+    rdfs:range  :FinalGrade .
+
+# FinalGrade to Course  (the course the final grade is for)
+:finalGradeFor a owl:ObjectProperty ;
+    rdfs:label  "final grade for"@en ;
+    rdfs:domain :FinalGrade ;
+    rdfs:range  :Course .
+
+# Student to Publication  (a student can co-author many publications)
+:hasPublication a owl:ObjectProperty ;
+    rdfs:label  "has publication"@en ;
+    rdfs:domain :Student ;
+    rdfs:range  :Publication .
+
+# Student to StudentActivity  (one activity record per student)
+:hasActivity a owl:ObjectProperty ;
+    rdfs:label  "has activity record"@en ;
+    rdfs:domain :Student ;
+    rdfs:range  :StudentActivity .
+
+# StudentActivity to ClubMembership  (one activity record, many memberships)
+:hasClubMembership a owl:ObjectProperty ;
+    rdfs:label  "has club membership"@en ;
+    rdfs:domain :StudentActivity ;
+    rdfs:range  :ClubMembership .
+
+# StudentActivity to AcademicProject  (one activity record, many projects)
+:hasProject a owl:ObjectProperty ;
+    rdfs:label  "has academic project"@en ;
+    rdfs:domain :StudentActivity ;
+    rdfs:range  :AcademicProject .
+
+#  Data Properties - :Student
+
+:studentId a owl:DatatypeProperty ;
+    rdfs:label  "student ID"@en ;
+    rdfs:domain :Student ;
+    rdfs:range  xsd:integer .
+
+:fullName a owl:DatatypeProperty ;
+    rdfs:label  "full name"@en ;
+    rdfs:domain :Student ;
+    rdfs:range  xsd:string .
+
+:dateOfBirth a owl:DatatypeProperty ;
+    rdfs:label  "date of birth"@en ;
+    rdfs:domain :Student ;
+    rdfs:range  xsd:date .
+
+#  Data Properties - :Programme
+
+:programmeId a owl:DatatypeProperty ;
+    rdfs:label  "programme ID"@en ;
+    rdfs:domain :Programme ;
+    rdfs:range  xsd:integer .
+
+:programmeName a owl:DatatypeProperty ;
+    rdfs:label  "programme name"@en ;
+    rdfs:domain :Programme ;
+    rdfs:range  xsd:string .
+
+:programmeDepartment a owl:DatatypeProperty ;
+    rdfs:label  "programme department"@en ;
+    rdfs:domain :Programme ;
+    rdfs:range  xsd:string .
+
+#  Data Properties - :Enrollment
+
+:enrollmentId a owl:DatatypeProperty ;
+    rdfs:label  "enrollment ID"@en ;
+    rdfs:domain :Enrollment ;
+    rdfs:range  xsd:integer .
+
+:academicYear a owl:DatatypeProperty ;
+    rdfs:label   "academic year"@en ;
+    rdfs:comment "Academic year of the enrollment, in 'YYYY-YYYY' format (e.g. '2023-2024')."@en ;
+    rdfs:domain  :Enrollment ;
+    rdfs:range   xsd:string .
+
+#  Data Properties - :Course
+
+:courseId a owl:DatatypeProperty ;
+    rdfs:label  "course ID"@en ;
+    rdfs:domain :Course ;
+    rdfs:range  xsd:integer .
+
+:courseTitle a owl:DatatypeProperty ;
+    rdfs:label  "course title"@en ;
+    rdfs:domain :Course ;
+    rdfs:range  xsd:string .
+
+:credits a owl:DatatypeProperty ;
+    rdfs:label  "credits"@en ;
+    rdfs:domain :Course ;
+    rdfs:range  xsd:integer .
+
+:courseDepartment a owl:DatatypeProperty ;
+    rdfs:label  "course department"@en ;
+    rdfs:domain :Course ;
+    rdfs:range  xsd:string .
+
+#  Data Properties - :Assessment
+
+:assessmentId a owl:DatatypeProperty ;
+    rdfs:label  "assessment ID"@en ;
+    rdfs:domain :Assessment ;
+    rdfs:range  xsd:integer .
+
+:assessmentType a owl:DatatypeProperty ;
+    rdfs:label  "assessment type"@en ;
+    rdfs:domain :Assessment ;
+    rdfs:range  xsd:string .
+
+:weight a owl:DatatypeProperty ;
+    rdfs:label   "weight"@en ;
+    rdfs:comment "Fractional weight of this assessment in the course total (weights sum to 1.00 per course)."@en ;
+    rdfs:domain  :Assessment ;
+    rdfs:range   xsd:decimal .
+
+#  Data Properties - :Grade
+
+:gradeId a owl:DatatypeProperty ;
+    rdfs:label  "grade ID"@en ;
+    rdfs:domain :Grade ;
+    rdfs:range  xsd:integer .
+
+:score a owl:DatatypeProperty ;
+    rdfs:label  "score"@en ;
+    rdfs:domain :Grade ;
+    rdfs:range  xsd:decimal .
+
+#  Data Properties - :FinalGrade
+
+:finalStudentId a owl:DatatypeProperty ;
+    rdfs:label   "final grade student ID"@en ;
+    rdfs:comment "Half of the (student, course) natural key shared by both sources."@en ;
+    rdfs:domain  :FinalGrade ;
+    rdfs:range   xsd:integer .
+
+:finalCourseId a owl:DatatypeProperty ;
+    rdfs:label   "final grade course ID"@en ;
+    rdfs:comment "Half of the (student, course) natural key shared by both sources."@en ;
+    rdfs:domain  :FinalGrade ;
+    rdfs:range   xsd:integer .
+
+:finalScore a owl:DatatypeProperty ;
+    rdfs:label  "final score"@en ;
+    rdfs:domain :FinalGrade ;
+    rdfs:range  xsd:decimal .
+
+#  Data Properties - :Publication
+
+:publicationId a owl:DatatypeProperty ;
+    rdfs:label  "publication ID"@en ;
+    rdfs:domain :Publication ;
+    rdfs:range  xsd:integer .
+
+:publicationTitle a owl:DatatypeProperty ;
+    rdfs:label  "publication title"@en ;
+    rdfs:domain :Publication ;
+    rdfs:range  xsd:string .
+
+:publicationYear a owl:DatatypeProperty ;
+    rdfs:label  "publication year"@en ;
+    rdfs:domain :Publication ;
+    rdfs:range  xsd:integer .
+
+:publicationVenue a owl:DatatypeProperty ;
+    rdfs:label  "publication venue"@en ;
+    rdfs:domain :Publication ;
+    rdfs:range  xsd:string .
+
+# Stored on each publication so writes can include its authors. The property
+# is not functional because a publication may have several authors.
+:publicationAuthorStudentId a owl:DatatypeProperty ;
+    rdfs:label  "publication author student ID"@en ;
+    rdfs:domain :Publication ;
+    rdfs:range  xsd:integer .
+
+#  Data Properties - :StudentActivity
+
+:activityStudentId a owl:DatatypeProperty ;
+    rdfs:label   "activity student ID"@en ;
+    rdfs:comment "The student_id this activity record belongs to (FK to Student by convention)."@en ;
+    rdfs:domain  :StudentActivity ;
+    rdfs:range   xsd:integer .
+
+#  Data Properties - :ClubMembership
+
+:clubName a owl:DatatypeProperty ;
+    rdfs:label  "club name"@en ;
+    rdfs:domain :ClubMembership ;
+    rdfs:range  xsd:string .
+
+:clubRole a owl:DatatypeProperty ;
+    rdfs:label  "club role"@en ;
+    rdfs:domain :ClubMembership ;
+    rdfs:range  xsd:string .
+
+:joinedDate a owl:DatatypeProperty ;
+    rdfs:label   "joined date"@en ;
+    rdfs:comment "Date the student joined the club, in 'YYYY-MM' format (e.g. '2022-09')."@en ;
+    rdfs:domain  :ClubMembership ;
+    rdfs:range   xsd:string .
+
+#  Data Properties - :AcademicProject
+
+:projectTitle a owl:DatatypeProperty ;
+    rdfs:label  "project title"@en ;
+    rdfs:domain :AcademicProject ;
+    rdfs:range  xsd:string .
+
+:projectYear a owl:DatatypeProperty ;
+    rdfs:label  "project year"@en ;
+    rdfs:domain :AcademicProject ;
+    rdfs:range  xsd:integer .
+
+:projectStatus a owl:DatatypeProperty ;
+    rdfs:label  "project status"@en ;
+    rdfs:domain :AcademicProject ;
+    rdfs:range  xsd:string .
+
+#  Keys - used by Ontop for IRI generation and query rewriting
+#  (HasKey is in the OWL 2 QL profile)
+
+:Student         owl:hasKey ( :studentId ) .
+:Programme       owl:hasKey ( :programmeId ) .
+:Enrollment      owl:hasKey ( :enrollmentId ) .
+:Course          owl:hasKey ( :courseId ) .
+:Assessment      owl:hasKey ( :assessmentId ) .
+:Grade           owl:hasKey ( :gradeId ) .
+:StudentActivity owl:hasKey ( :activityStudentId ) .

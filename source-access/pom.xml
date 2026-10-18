@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>nl.utwente.thesis</groupId>
+    <artifactId>vdcs-instantiation</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>vdcs-source-access</artifactId>
+  <packaging>pom</packaging>
+  <name>VDCS — Source Access (parent)</name>
+  <description>Aggregator for source-specific access modules.</description>
+
+  <modules>
+    <module>source-access-postgres</module>
+    <module>source-access-postgres-service</module>
+    <module>source-access-mysql</module>
+    <module>source-access-mysql-service</module>
+    <module>source-access-mongo</module>
+    <module>source-access-publications-service</module>
+  </modules>
+</project>

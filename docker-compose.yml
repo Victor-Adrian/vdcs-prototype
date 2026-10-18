@@ -1,0 +1,81 @@
+services:
+
+  student-registry:
+    image: postgres:16
+    container_name: student-registry
+    environment:
+      POSTGRES_DB: registry
+      POSTGRES_USER: registry
+      POSTGRES_PASSWORD: registry
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U registry -d registry"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  academic-records:
+    image: mysql:8.0
+    container_name: academic-records
+    environment:
+      MYSQL_DATABASE: academics
+      MYSQL_USER: academics
+      MYSQL_PASSWORD: academics
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "5433:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./infra/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "academics", "-pacademics"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  student-activities:
+    image: mongo:7
+    container_name: student-activities
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+      MONGO_INITDB_DATABASE: activities
+    ports:
+      - "5434:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./infra/mongo/init.js:/docker-entrypoint-initdb.d/init.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh",
+             "--username", "mongo", "--password", "mongo",
+             "--authenticationDatabase", "admin",
+             "--eval", "db.adminCommand('ping')", "--quiet"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  research-publications:
+    image: stain/jena-fuseki
+    container_name: research-publications
+    # shiro.ini pins the admin credential, keeps reads public, and protects
+    # updates. The Turtle seed is loaded into an in-memory dataset, so
+    # container recreation discards writes and restores the known state.
+    command: ["/jena-fuseki/fuseki-server", "--update", "--file=/staging/publications.ttl", "/publications"]
+    ports:
+      - "5435:3030"
+    volumes:
+      - ./infra/fuseki/publications.ttl:/staging/publications.ttl:ro
+      - ./infra/fuseki/shiro.ini:/fuseki/shiro.ini:ro
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  mysql_data:
+  mongo_data:

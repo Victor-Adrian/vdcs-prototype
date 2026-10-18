@@ -1,0 +1,21 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: vdcs-write-orchestrator-service
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+
+vdcs:
+  metadata:
+    # The orchestrator fetches the catalogue (routing + per-source SAC
+    # URLs) from the Metadata Service at startup, and pushes write
+    # provenance events to it.
+    url: http://localhost:8082
+  mediator:
+    # The Semantic Mediator. The orchestrator evaluates the WHERE clause
+    # of a DELETE/INSERT WHERE update against the virtual graph here,
+    # then decomposes the resulting concrete updates.
+    url: http://localhost:8081

@@ -1,0 +1,15 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: vdcs-semantic-mediator
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+
+vdcs:
+  metadata:
+    # Base URL of the metadata-service. All source-connection settings
+    # and the ontology + mapping artefacts are fetched from here at startup.
+    url: http://localhost:8082

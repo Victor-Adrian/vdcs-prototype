@@ -1,0 +1,32 @@
+# Build output
+target/
+*.class
+
+# Service logs (written at runtime by run-all.ps1)
+logs/
+*.log
+
+# IDE / editor
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# OS noise
+Thumbs.db
+.DS_Store
+
+# Local Maven wrapper cache (if any)
+.mvn/wrapper/maven-wrapper.jar
+
+# LaTeX build artifacts
+*.aux
+*.toc
+*.out
+*.synctex.gz
+
+# Local documentation
+# Generated and private documents stay outside the repository.
+report.tex
+report.pdf
+architecture.pdf

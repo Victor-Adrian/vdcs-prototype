@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>nl.utwente.thesis</groupId>
+    <artifactId>vdcs-instantiation</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>vdcs-write-orchestrator-service</artifactId>
+  <name>VDCS — Write Orchestrator Service</name>
+  <description>Service for translating, routing, and coordinating federated writes.</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <!-- The orchestrator logic library (orchestrator graph, executors,
+         canonical write model) -->
+    <dependency>
+      <groupId>nl.utwente.thesis</groupId>
+      <artifactId>vdcs-write-orchestrator</artifactId>
+    </dependency>
+
+    <!-- Catalogue (routing + SAC URLs) and provenance push -->
+    <dependency>
+      <groupId>nl.utwente.thesis</groupId>
+      <artifactId>vdcs-metadata-client</artifactId>
+    </dependency>
+
+    <!-- RDF4J parsers used by the SPARQL update translator -->
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-queryparser-sparql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-rio-turtle</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals><goal>repackage</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

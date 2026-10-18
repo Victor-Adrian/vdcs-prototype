@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: vdcs-access-interface
+  autoconfigure:
+    exclude:
+      # mongodb-driver-sync is on the classpath transitively (via write-orchestrator).
+      # access-interface does not use MongoDB directly - suppress the default client
+      # that would otherwise attempt to connect to localhost:27017 on startup.
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+
+vdcs:
+  metadata:
+    # Base URL of the Metadata & Governance Service. The access interface
+    # fetches the catalogue + per-source connection settings from here at
+    # startup.
+    url: http://localhost:8082
+  mediator:
+    # Base URL of the Semantic Mediator - the SPARQL read forward target.
+    url: http://localhost:8081
+  orchestrator:
+    # Target for canonical JSON and SPARQL update requests.
+    url: http://localhost:8089
+  iam:
+    # Resolves bearer tokens and permissions for API requests.
+    url: http://localhost:8087

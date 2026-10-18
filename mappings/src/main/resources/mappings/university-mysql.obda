@@ -1,0 +1,25 @@
+[PrefixDeclaration]
+:       https://thesis.utwente.nl/vdcs/ontology/university#
+r:      https://thesis.utwente.nl/vdcs/resource/
+xsd:    http://www.w3.org/2001/XMLSchema#
+rdf:    http://www.w3.org/1999/02/22-rdf-syntax-ns#
+
+[MappingDeclaration] @collection [[
+
+mappingId    map-courses
+target       r:course/{course_id} a :Course ; :courseId {course_id}^^xsd:integer ; :courseTitle {title}^^xsd:string ; :credits {credits}^^xsd:integer ; :courseDepartment {department}^^xsd:string .
+source       SELECT id AS course_id, title, credits, department FROM courses
+
+mappingId    map-assessments
+target       r:assessment/{assessment_id} a :Assessment ; :assessmentId {assessment_id}^^xsd:integer ; :assessmentType {type}^^xsd:string ; :weight {weight}^^xsd:decimal . r:course/{course_id} :hasAssessment r:assessment/{assessment_id} .
+source       SELECT id AS assessment_id, course_id, type, weight FROM assessments
+
+mappingId    map-grades
+target       r:grade/{grade_id} a :Grade ; :gradeId {grade_id}^^xsd:integer ; :score {score}^^xsd:decimal . r:student/{student_id} :hasGrade r:grade/{grade_id} . r:grade/{grade_id} :assessedBy r:assessment/{assessment_id} .
+source       SELECT id AS grade_id, student_id, assessment_id, score FROM grades
+
+mappingId    map-final-grades
+target       r:final-grade/{student_id}-{course_id} a :FinalGrade ; :finalStudentId {student_id}^^xsd:integer ; :finalCourseId {course_id}^^xsd:integer ; :finalScore {final_grade}^^xsd:decimal ; :finalGradeFor r:course/{course_id} . r:student/{student_id} :hasFinalGrade r:final-grade/{student_id}-{course_id} .
+source       SELECT student_id, course_id, final_grade FROM final_grades
+
+]]

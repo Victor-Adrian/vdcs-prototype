@@ -1,0 +1,99 @@
+# Registry for ontology and mapping lifecycle metadata.
+# classpathResource locates the content, and conformsTo identifies the
+# ontology version targeted by a mapping.
+
+artefacts:
+
+  - id:           ontology
+    persistentId: https://thesis.utwente.nl/vdcs/metadata/artefact/ontology
+    title:        "University Domain Ontology"
+    description:  >
+      OWL 2 QL ontology defining the student-records domain — Student,
+      Programme, Course, Grade, etc. — used as the global semantic model
+      across all three sources.
+    kind:         ontology
+    format:       text/turtle
+    version:      "1.0.0"
+    classpath:    ontology/university.ttl
+    license:      CC-BY-4.0
+    licenseUrl:   https://creativecommons.org/licenses/by/4.0/
+    owner:        "Thesis author (synthetic)"
+    created:      "2026-01-15"
+    modified:     "2026-02-01"
+
+  - id:           mapping-pg
+    persistentId: https://thesis.utwente.nl/vdcs/metadata/artefact/mapping-pg
+    title:        "PostgreSQL OBDA mapping"
+    description:  >
+      Ontop R2RML-style mapping linking the PostgreSQL `student-registry`
+      tables (students, programmes, enrollments) to the global ontology.
+    kind:         mapping
+    format:       application/obda
+    version:      "1.0.0"
+    classpath:    mappings/university-pg.obda
+    license:      CC-BY-4.0
+    licenseUrl:   https://creativecommons.org/licenses/by/4.0/
+    owner:        "Thesis author (synthetic)"
+    created:      "2026-02-01"
+    modified:     "2026-05-20"
+    conformsTo:   "ontology@1.0.0"
+    appliesTo:    student-registry
+
+  - id:           mapping-mysql
+    persistentId: https://thesis.utwente.nl/vdcs/metadata/artefact/mapping-mysql
+    title:        "MySQL OBDA mapping"
+    description:  >
+      Ontop R2RML-style mapping linking the MySQL `academic-records`
+      tables (courses, assessments, grades) to the global ontology.
+    kind:         mapping
+    format:       application/obda
+    version:      "1.0.0"
+    classpath:    mappings/university-mysql.obda
+    license:      CC-BY-4.0
+    licenseUrl:   https://creativecommons.org/licenses/by/4.0/
+    owner:        "Thesis author (synthetic)"
+    created:      "2026-02-01"
+    modified:     "2026-05-26"
+    conformsTo:   "ontology@1.0.0"
+    appliesTo:    academic-records
+
+  - id:           mapping-mongo
+    persistentId: https://thesis.utwente.nl/vdcs/metadata/artefact/mapping-mongo
+    title:        "MongoDB OBDA mapping (via H2 canonical view)"
+    description:  >
+      Ontop R2RML-style mapping linking the MongoDB `student-activities`
+      collections — projected into an in-process H2 canonical view by
+      the Canonical Source Adapter — to the global ontology.
+    kind:         mapping
+    format:       application/obda
+    version:      "1.0.0"
+    classpath:    mappings/university-mongo.obda
+    license:      CC-BY-4.0
+    licenseUrl:   https://creativecommons.org/licenses/by/4.0/
+    owner:        "Thesis author (synthetic)"
+    created:      "2026-02-01"
+    modified:     "2026-05-15"
+    conformsTo:   "ontology@1.0.0"
+    appliesTo:    student-activities
+
+  - id:           mapping-publications
+    persistentId: https://thesis.utwente.nl/vdcs/metadata/artefact/mapping-publications
+    title:        "Research Publications graph mapping (SPARQL CONSTRUCT)"
+    description:  >
+      SPARQL CONSTRUCT mapping — the graph-native analogue of the .obda
+      files — translating the research repository's native vocabulary
+      (dcterms + a local namespace) into the global ontology. Executed by
+      the federation engine directly against the source's SPARQL endpoint
+      at query time; no relational lowering, because the mediator's
+      working model is already RDF.
+    kind:         mapping
+    format:       application/sparql-query
+    version:      "1.0.0"
+    classpath:    mappings/university-publications.rq
+    license:      CC-BY-4.0
+    licenseUrl:   https://creativecommons.org/licenses/by/4.0/
+    owner:        "Thesis author (synthetic)"
+    created:      "2026-07-02"
+    modified:     "2026-07-02"
+    conformsTo:   "ontology@1.0.0"
+    appliesTo:    research-publications

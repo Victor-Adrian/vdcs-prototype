@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>nl.utwente.thesis</groupId>
+    <artifactId>vdcs-instantiation</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>vdcs-semantic-mediator</artifactId>
+  <name>VDCS — Semantic Mediator</name>
+  <description>Ontop-backed SPARQL mediation and cross-source query service.</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <!-- Ontology and mapping resources (loaded via the metadata service) -->
+    <dependency>
+      <groupId>nl.utwente.thesis</groupId>
+      <artifactId>vdcs-ontology</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>nl.utwente.thesis</groupId>
+      <artifactId>vdcs-mappings</artifactId>
+    </dependency>
+
+    <!-- Client library for the Metadata & Governance Service. -->
+    <dependency>
+      <groupId>nl.utwente.thesis</groupId>
+      <artifactId>vdcs-metadata-client</artifactId>
+    </dependency>
+
+    <!--
+      JDBC drivers. Ontop opens connections directly via the driver
+      classes; the mediator doesn't go through the source-access
+      libraries any more. PG and MySQL drivers reach the actual source
+      databases (whose URLs come from the SAC at startup); H2 reaches
+      the CSA's TCP-exposed canonical projection for MongoDB.
+    -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+    </dependency>
+
+    <!-- Ontop embedded SPARQL-over-SQL engine -->
+    <dependency>
+      <groupId>it.unibz.inf.ontop</groupId>
+      <artifactId>ontop-rdf4j</artifactId>
+      <version>${ontop.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>it.unibz.inf.ontop</groupId>
+      <artifactId>ontop-system-sql-owlapi</artifactId>
+      <version>${ontop.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+    </dependency>
+
+    <!-- SPARQL-protocol client for the graph source (research
+         publications): the mediator connects to its endpoint directly,
+         no Ontop/SQL layer in between -->
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-repository-sparql</artifactId>
+    </dependency>
+
+    <!-- SPARQL/JSON result writer (ServiceLoader-registered) -->
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-queryresultio-sparqljson</artifactId>
+    </dependency>
+
+    <!-- In-memory store and parser used for federation -->
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-sail-memory</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-repository-sail</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-queryparser-sparql</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals><goal>repackage</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

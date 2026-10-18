@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>nl.utwente.thesis</groupId>
+    <artifactId>vdcs-source-access-mongo</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>vdcs-source-access-mongo-canonical-adapter-service</artifactId>
+  <name>VDCS — Canonical Source Adapter Service (MongoDB)</name>
+  <description>MongoDB-to-H2 projection and canonical write service.</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <!-- The two libraries we wrap: Mongo driver wrapper + H2 projection logic -->
+    <dependency>
+      <groupId>nl.utwente.thesis</groupId>
+      <artifactId>vdcs-source-access-mongo-source</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>nl.utwente.thesis</groupId>
+      <artifactId>vdcs-source-access-mongo-adapter</artifactId>
+    </dependency>
+
+    <!-- CanonicalUpdate / CompletedOperation DTOs over the wire -->
+    <dependency>
+      <groupId>nl.utwente.thesis</groupId>
+      <artifactId>vdcs-write-orchestrator</artifactId>
+    </dependency>
+
+    <!-- Pulls source credentials from the Secret & Credential Store at startup -->
+    <dependency>
+      <groupId>nl.utwente.thesis</groupId>
+      <artifactId>vdcs-secret-store-client</artifactId>
+    </dependency>
+
+    <!-- H2 is needed at runtime (TCP server + JDBC driver). -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals><goal>repackage</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

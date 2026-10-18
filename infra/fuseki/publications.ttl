@@ -1,0 +1,68 @@
+# Research Publications (Apache Jena Fuseki)
+#
+# Stores student publications as RDF using dcterms and the local pub
+# namespace. The query mapping translates this vocabulary to the global
+# ontology.
+#
+# pub:authorStudentNumber corresponds to PostgreSQL students(id), but
+# this source does not enforce that relationship.
+
+@prefix pub:  <https://research.utwente.nl/vocab#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+<https://research.utwente.nl/publication/1>
+    a pub:Publication ;
+    dct:title "Query Rewriting over Virtual Knowledge Graphs" ;
+    pub:year  2025 ;
+    pub:venue "SEMANTiCS" ;
+    pub:authorStudentNumber 1, 3 .
+
+<https://research.utwente.nl/publication/2>
+    a pub:Publication ;
+    dct:title "A Saga-Based Approach to Federated Updates" ;
+    pub:year  2026 ;
+    pub:venue "EDBT" ;
+    pub:authorStudentNumber 1 .
+
+<https://research.utwente.nl/publication/3>
+    a pub:Publication ;
+    dct:title "Benchmarking OBDA Engines on Relational Backends" ;
+    pub:year  2025 ;
+    pub:venue "ISWC Posters & Demos" ;
+    pub:authorStudentNumber 6, 8 .
+
+<https://research.utwente.nl/publication/4>
+    a pub:Publication ;
+    dct:title "Statistical Methods for Sparse Student Data" ;
+    pub:year  2024 ;
+    pub:venue "JMLR Student Track" ;
+    pub:authorStudentNumber 9 .
+
+<https://research.utwente.nl/publication/5>
+    a pub:Publication ;
+    dct:title "Graph Sampling for Curriculum Analytics" ;
+    pub:year  2025 ;
+    pub:venue "LAK" ;
+    pub:authorStudentNumber 12, 9 .
+
+<https://research.utwente.nl/publication/6>
+    a pub:Publication ;
+    dct:title "Ontology-Mediated Access Control" ;
+    pub:year  2026 ;
+    pub:venue "SACMAT" ;
+    pub:authorStudentNumber 3 .
+
+<https://research.utwente.nl/publication/7>
+    a pub:Publication ;
+    dct:title "Document Stores Meet Triple Stores" ;
+    pub:year  2024 ;
+    pub:venue "SIGMOD Student Research Competition" ;
+    pub:authorStudentNumber 7, 6 .
+
+<https://research.utwente.nl/publication/8>
+    a pub:Publication ;
+    dct:title "Provenance Tracking in Data Federations" ;
+    pub:year  2026 ;
+    pub:venue "TaPP" ;
+    pub:authorStudentNumber 8 .

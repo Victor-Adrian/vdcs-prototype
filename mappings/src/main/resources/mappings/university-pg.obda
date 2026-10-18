@@ -1,0 +1,25 @@
+[PrefixDeclaration]
+:       https://thesis.utwente.nl/vdcs/ontology/university#
+r:      https://thesis.utwente.nl/vdcs/resource/
+xsd:    http://www.w3.org/2001/XMLSchema#
+rdf:    http://www.w3.org/1999/02/22-rdf-syntax-ns#
+
+[MappingDeclaration] @collection [[
+
+mappingId    map-students
+target       r:student/{student_id} a :Student ; :studentId {student_id}^^xsd:integer ; :fullName {full_name}^^xsd:string ; :dateOfBirth {date_of_birth}^^xsd:date ; :enrolledInProgramme r:programme/{programme_id} .
+source       SELECT id AS student_id, full_name, date_of_birth, programme_id FROM students
+
+mappingId    map-programmes
+target       r:programme/{programme_id} a :Programme ; :programmeId {programme_id}^^xsd:integer ; :programmeName {name}^^xsd:string ; :programmeDepartment {department}^^xsd:string .
+source       SELECT id AS programme_id, name, department FROM programmes
+
+mappingId    map-enrollments
+target       r:enrollment/{enrollment_id} a :Enrollment ; :enrollmentId {enrollment_id}^^xsd:integer ; :academicYear {academic_year}^^xsd:string . r:student/{student_id} :hasEnrollment r:enrollment/{enrollment_id} . r:enrollment/{enrollment_id} :enrolledInCourse r:course/{course_id} .
+source       SELECT id AS enrollment_id, student_id, course_id, academic_year FROM enrollments
+
+mappingId    map-final-grades
+target       r:final-grade/{student_id}-{course_id} a :FinalGrade ; :finalStudentId {student_id}^^xsd:integer ; :finalCourseId {course_id}^^xsd:integer ; :finalScore {final_grade}^^xsd:decimal ; :finalGradeFor r:course/{course_id} . r:student/{student_id} :hasFinalGrade r:final-grade/{student_id}-{course_id} .
+source       SELECT student_id, course_id, final_grade FROM enrollments WHERE final_grade IS NOT NULL
+
+]]

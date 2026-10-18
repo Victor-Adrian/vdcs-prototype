@@ -1,0 +1,15 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: vdcs-iam-service
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+
+vdcs:
+  iam:
+    audit:
+      # Max IAM events held in the in-memory ring buffer.
+      capacity: 10000

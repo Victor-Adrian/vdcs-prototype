@@ -1,0 +1,18 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: vdcs-source-access-mysql-service
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+
+vdcs:
+  secret-store:
+    # Source credentials fetched from the Secret & Credential
+    # Store at startup. The READ-COMMITTED session-variable URL lives in
+    # the store's secrets.yml so the SAC and the mediator inherit it
+    # consistently.
+    url:   http://localhost:8088
+    token: mysql-sac-secret-token

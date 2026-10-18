@@ -1,0 +1,22 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: vdcs-source-access-mongo-canonical-adapter-service
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+
+vdcs:
+  secret-store:
+    # The adapter fetches MongoDB credentials from the secret store.
+    url:   http://localhost:8088
+    token: mongo-csa-secret-token
+  csa:
+    h2:
+      # H2 endpoint used by the mediator for the canonical projection.
+      port:     9092
+      dbName:   activities
+      user:     sa
+      password: ""
